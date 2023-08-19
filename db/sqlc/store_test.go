@@ -9,7 +9,7 @@ import (
 )
 
 func TestTransferTx(t *testing.T) {
-	store := NewStore(testDB)
+	SQLStore := NewStore(testDB)
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
@@ -25,7 +25,7 @@ func TestTransferTx(t *testing.T) {
 	for i := 0; i < n; i++ {
 		go func() {
 			ctx := context.Background()
-			result, err := store.TransferTx(ctx, TransferTxParams{
+			result, err := SQLStore.TransferTx(ctx, TransferTxParams{
 				FromAccountID: account1.ID,
 				ToAccountID:   account2.ID,
 				Amount:        amount,
@@ -54,7 +54,7 @@ func TestTransferTx(t *testing.T) {
 		require.NotZero(t, transfer.ID)
 		require.NotZero(t, transfer.CreatedAt)
 
-		_, err = store.GetTransfer(context.Background(), transfer.ID)
+		_, err = SQLStore.GetTransfer(context.Background(), transfer.ID)
 		require.NoError(t, err)
 
 		// check entries
@@ -65,7 +65,7 @@ func TestTransferTx(t *testing.T) {
 		require.NotZero(t, fromEntry.ID)
 		require.NotZero(t, fromEntry.CreatedAt)
 
-		_, err = store.GetEntry(context.Background(), fromEntry.ID)
+		_, err = SQLStore.GetEntry(context.Background(), fromEntry.ID)
 		require.NoError(t, err)
 
 		toEntry := result.ToEntry
@@ -75,7 +75,7 @@ func TestTransferTx(t *testing.T) {
 		require.NotZero(t, toEntry.ID)
 		require.NotZero(t, toEntry.CreatedAt)
 
-		_, err = store.GetEntry(context.Background(), toEntry.ID)
+		_, err = SQLStore.GetEntry(context.Background(), toEntry.ID)
 		require.NoError(t, err)
 
 		// check accounts
@@ -114,7 +114,7 @@ func TestTransferTx(t *testing.T) {
 }
 
 func TestTransferTxDeadlock(t *testing.T) {
-	store := NewStore(testDB)
+	SQLStore := NewStore(testDB)
 
 	account1 := createRandomAccount(t)
 	account2 := createRandomAccount(t)
@@ -137,7 +137,7 @@ func TestTransferTxDeadlock(t *testing.T) {
 
 		go func() {
 			ctx := context.Background()
-			_, err := store.TransferTx(ctx, TransferTxParams{
+			_, err := SQLStore.TransferTx(ctx, TransferTxParams{
 				FromAccountID: fromAccountId,
 				ToAccountID:   toAccountId,
 				Amount:        amount,
